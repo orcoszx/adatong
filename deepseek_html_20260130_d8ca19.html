@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Webhook Manager | Login OTP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 
+        ============================================
+        DISCORD WEBHOOK MANAGER WITH OTP LOGIN
+        Copyright © 2024 TROY
+        All Rights Reserved
+        ============================================
+        */
+        
+        :root {
+            --primary: #5865F2;
+            --primary-dark: #4752C4;
+            --secondary: #57F287;
+            --dark: #1e2124;
+            --darker: #18191c;
+            --light: #f6f6f6;
+            --gray: #4f545c;
+            --light-gray: #b9bbbe;
+            --danger: #ED4245;
+            --warning: #FEE75C;
+            --success: #3ba55d;
+            --shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            --card-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .copyright-watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 0.8rem;
+            z-index: 9999;
+            pointer-events: none;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .login-screen {
+            background: rgba(30, 33, 36, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: var(--card-radius);
+            padding: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: center;
+            display: block;
+        }
+        
+        .main-screen {
+            display: none;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .logo i {
+            font-size: 3rem;
+            color: var(--primary);
+            background: rgba(88, 101, 242, 0.1);
+            padding: 20px;
+            border-radius: 50%;
+        }
+        
+        .logo-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo-text p {
+            font-size: 1rem;
+            color: var(--light-gray);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--light-gray);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #2d8c4a;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c03537;
+        }
+        
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--light);
+            transition: var(--transition);
+        }
+        
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .card {
+            background: rgba(30, 33, 36, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .card-header i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            background: rgba(88, 101, 242, 0.1);
+            padding: 12px;
+            border-radius: 10px;
+        }
+        
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .log-panel {
+            margin-top: 30px;
+        }
+        
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .log-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'monospace';
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .log-entry.success {
+            color: var(--secondary);
+        }
+        
+        .log-entry.error {
+            color: var(--danger);
+        }
+        
+        .log-entry.info {
+            color: var(--warning);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light-gray);
+            font-size: 0.9rem;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+        
+        .notification.error {
+            background: var(--danger);
+        }
+        
+        .notification.info {
+            background: var(--primary);
+        }
+        
+        .notification.warning {
+            background: var(--warning);
+            color: #000;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .login-screen {
+                padding: 30px 20px;
+            }
+            
+            .logo {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .otp-container {
+                gap: 5px;
+            }
+            
+            .otp-input {
+                width: 40px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray);
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+        
+        .webhook-list {
+            margin-top: 20px;
+        }
+        
+        .webhook-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* TROY Signature */
+        .troy-signature {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 0.7rem;
+            font-family: 'Courier New', monospace;
+            z-index: 9999;
+        }
+        
+        .troy-signature::before {
+            content: "Created by TROY © 2024";
+        }
+    </style>
+</head>
+<body>
+    <!-- TROY Copyright Watermark -->
+    <div class="copyright-watermark">
+        DISCORD WEBHOOK MANAGER v2.0 © TROY
+    </div>
+    
+    <div class="troy-signature"></div>
+    
+    <div class="container">
+        <div class="login-screen" id="loginScreen">
+            <div class="logo">
+                <i class="fab fa-discord"></i>
+                <div class="logo-text">
+                    <h1>Discord Webhook Manager</h1>
+                    <p>Login dengan OTP via Discord | Created by TROY</p>
+                </div>
+            </div>
+            
+            <div id="emailStep">
+                <div class="form-group">
+                    <label for="userEmail">
+                        <i class="fas fa-envelope"></i> Email Anda
+                    </label>
+                    <input type="email" id="userEmail" class="form-control" placeholder="nama@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminWebhook">
+                        <i class="fas fa-link"></i> Admin Webhook URL
+                    </label>
+                    <input type="text" id="adminWebhook" class="form-control" placeholder="https://discord.com/api/webhooks/...">
+                    <small style="color: var(--light-gray); margin-top: 5px; display: block;">
+                        Webhook untuk menerima OTP dan notifikasi login
+                    </small>
+                </div>
+                
+                <button class="btn btn-primary" id="sendOTP">
+                    <i class="fas fa-paper-plane"></i> Kirim OTP ke Discord
+                </button>
+            </div>
+            
+            <div id="otpStep" style="display: none;">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-shield-alt"></i> Masukkan Kode OTP
+                    </label>
+                    <p style="color: var(--light-gray); margin-bottom: 20px;">
+                        Kode OTP telah dikirim ke webhook Discord Anda. Silakan cek channel Discord.
+                    </p>
+                </div>
+                
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                
+                <div class="form-group" style="text-align: center;">
+                    <p id="timer" style="color: var(--warning); margin: 15px 0;">
+                        OTP berlaku selama: <span id="countdown">300</span> detik
+                    </p>
+                </div>
+                
+                <button class="btn btn-success" id="verifyOTP">
+                    <i class="fas fa-check"></i> Verifikasi OTP
+                </button>
+                
+                <button class="btn btn-secondary" id="resendOTP" style="margin-top: 10px;">
+                    <i class="fas fa-redo"></i> Kirim Ulang OTP
+                </button>
+                
+                <button class="btn btn-danger" id="backToEmail" style="margin-top: 10px;">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Email
+                </button>
+            </div>
+        </div>
+        
+        <div class="main-screen" id="mainScreen">
+            <div class="header">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <h3 id="userEmailDisplay"></h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            <i class="fas fa-circle" style="color: var(--secondary); font-size: 0.7rem;"></i>
+                            Online | App by TROY
+                        </p>
+                    </div>
+                </div>
+                <button class="btn btn-danger" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-link"></i>
+                    <h2>Konfigurasi Webhook</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="webhookUrl">
+                        <i class="fas fa-globe"></i> URL Webhook Discord
+                    </label>
+                    <input type="text" id="webhookUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="webhookName">
+                        <i class="fas fa-robot"></i> Nama Bot (Opsional)
+                    </label>
+                    <input type="text" id="webhookName" class="form-control" placeholder="Webhook Bot">
+                </div>
+                
+                <button class="btn btn-primary" id="saveWebhook">
+                    <i class="fas fa-save"></i> Simpan Webhook
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-paper-plane"></i>
+                    <h2>Kirim Pesan</h2>
+                </div>
+                
+                <div class="form-group">
+                    <label for="messageContent">
+                        <i class="fas fa-comment-alt"></i> Konten Pesan
+                    </label>
+                    <textarea id="messageContent" class="form-control" placeholder="Tulis pesan Anda di sini..." rows="4"></textarea>
+                </div>
+                
+                <button class="btn btn-success" id="sendMessage">
+                    <i class="fas fa-paper-plane"></i> Kirim Pesan
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list"></i>
+                    <h2>Webhook Tersimpan</h2>
+                </div>
+                
+                <div class="webhook-list" id="webhookList">
+                </div>
+            </div>
+            
+            <div class="log-panel">
+                <div class="log-header">
+                    <h3><i class="fas fa-history"></i> Aktivitas Login & Pengiriman</h3>
+                    <button class="btn btn-secondary" id="clearLogs">
+                        <i class="fas fa-trash"></i> Bersihkan
+                    </button>
+                </div>
+                
+                <div class="log-content" id="logContent">
+                    <div class="log-entry info">
+                        [SISTEM] Silakan login untuk mulai menggunakan
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>© 2024 Discord Webhook Manager | Developed by TROY</p>
+                <p style="margin-top: 10px; font-size: 0.8rem;">
+                    Login terakhir: <span id="lastLogin">-</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let otpCode = null;
+        let otpExpiry = null;
+        let countdownInterval = null;
+        let webhooks = [];
+        
+        const loginScreen = document.getElementById('loginScreen');
+        const mainScreen = document.getElementById('mainScreen');
+        const emailStep = document.getElementById('emailStep');
+        const otpStep = document.getElementById('otpStep');
+        const userEmailInput = document.getElementById('userEmail');
+        const adminWebhookInput = document.getElementById('adminWebhook');
+        const otpInputs = document.querySelectorAll('.otp-input');
+        const countdownElement = document.getElementById('countdown');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        const userAvatar = document.getElementById('userAvatar');
+        const lastLoginElement = document.getElementById('lastLogin');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            setupOTPInputs();
+            setupEventListeners();
+        });
+        
+        function checkLoginStatus() {
+            const savedUser = localStorage.getItem('discord_webhook_user');
+            const savedSession = localStorage.getItem('discord_webhook_session');
+            
+            if (savedUser && savedSession) {
+                const session = JSON.parse(savedSession);
+                const now = new Date();
+                const expiry = new Date(session.expiry);
+                
+                if (now < expiry) {
+                    currentUser = JSON.parse(savedUser);
+                    showMainScreen();
+                    addLog(`Selamat datang kembali, ${currentUser.email}`, 'success');
+                    showNotification('Login otomatis berhasil!', 'success');
+                } else {
+                    localStorage.removeItem('discord_webhook_user');
+                    localStorage.removeItem('discord_webhook_session');
+                }
+            }
+        }
+        
+        function setupOTPInputs() {
+            otpInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1) {
+                        if (index < otpInputs.length - 1) {
+                            otpInputs[index + 1].focus();
+                        }
+                    }
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.target.value === '') {
+                        if (index > 0) {
+                            otpInputs[index - 1].focus();
+                        }
+                    }
+                });
+            });
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('sendOTP').addEventListener('click', sendOTP);
+            document.getElementById('verifyOTP').addEventListener('click', verifyOTP);
+            document.getElementById('resendOTP').addEventListener('click', resendOTP);
+            document.getElementById('backToEmail').addEventListener('click', backToEmail);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            document.getElementById('saveWebhook').addEventListener('click', saveWebhook);
+            document.getElementById('sendMessage').addEventListener('click', sendMessage);
+            document.getElementById('clearLogs').addEventListener('click', clearLogs);
+        }
+        
+        function sendOTP() {
+            const email = userEmailInput.value.trim();
+            const webhookUrl = adminWebhookInput.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                showNotification('Email tidak valid!', 'error');
+                return;
+            }
+            
+            if (!webhookUrl || !webhookUrl.includes('discord.com/api/webhooks/')) {
+                showNotification('URL webhook admin tidak valid!', 'error');
+                return;
+            }
+            
+            otpCode = generateOTP();
+            otpExpiry = new Date(Date.now() + 5 * 60000);
+            
+            const payload = {
+                content: `@here **OTP Login Request**`,
+                embeds: [{
+                    title: '🔐 Kode OTP Login Discord Webhook Manager',
+                    description: `Permintaan login dari: **${email}**\n\n**KODE OTP: **\`\`\`${otpCode}\`\`\``,
+                    color: 5814783,
+                    fields: [
+                        {
+                            name: '⏰ Berlaku hingga',
+                            value: `<t:${Math.floor(otpExpiry.getTime() / 1000)}:R>`,
+                            inline: true
+                        },
+                        {
+                            name: '🌐 IP Address',
+                            value: 'Checking...',
+                            inline: true
+                        }
+                    ],
+                    footer: {
+                        text: 'Discord Webhook Manager by TROY',
+                        icon_url: 'https://cdn.discordapp.com/embed/avatars/0.png'
+                    },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+            
+            showNotification('Mengirim OTP ke Discord...', 'info');
+            
+            fetch(webhookUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    showOTPStep();
+                    startCountdown();
+                    showNotification('OTP berhasil dikirim ke Discord!', 'success');
+                    addLog(`OTP dikirim ke ${email}`, 'info');
+                    
+                    localStorage.setItem('temp_email', email);
+                    localStorage.setItem('temp_webhook', webhookUrl);
+                } else {
+                    throw new Error('Gagal mengirim OTP');
+                }
+            })
+            .catch(error => {
+                showNotification(`Gagal mengirim OTP: ${error.message}`, 'error');
+            });
+        }
+        
+        function generateOTP() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        function showOTPStep() {
+            emailStep.style.display = 'none';
+            otpStep.style.display = 'block';
+            
+            otpInputs.forEach(input => input.value = '');
+            if (otpInputs.length > 0) otpInputs[0].focus();
+        }
+        
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            let timeLeft = 300;
+            countdownElement.textContent = timeLeft;
+            
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    showNotification('OTP telah kadaluarsa!', 'error');
+                    backToEmail();
+                }
+                
+                if (timeLeft <= 60) {
+                    countdownElement.style.color = 'var(--danger)';
+                } else if (timeLeft <= 120) {
+                    countdownElement.style.color = 'var(--warning)';
+                }
+            }, 1000);
+        }
+        
+        function verifyOTP() {
+            const enteredOTP = Array.from(otpInputs).map(input => input.value).join('');
+            
+            if (enteredOTP.length !== 6) {
+                showNotification('Masukkan 6 digit kode OTP!', 'error');
+                return;
+            }
+            
+            if (enteredOTP !== otpCode) {
+                showNotification('Kode OTP salah!', 'error');
+                otpInputs.forEach(input => {
+                    input.style.borderColor = 'var(--danger)';
+                    input.style.animation = 'shake 0.5s';
+                });
+                setTimeout(() => {
+                    otpInputs.forEach(input => {
+                        input.style.borderColor = '';
+                        input.style.animation = '';
+                    });
+                }, 500);
+                return;
+            }
+            
+            if (new Date() > otpExpiry) {
+                showNotification('Kode OTP telah kadaluarsa!', 'error');
+                return;
+            }
+            
+            const email = localStorage.getItem('temp_email');
+            const webhookUrl = localStorage.getItem('temp_webhook');
+            
+            currentUser = {
+                email: email,
+                webhook: webhookUrl,
+                loginTime: new Date().toISOString(),
+                ip: '127.0.0.1'
+            };
+            
+            const session = {
+                user: email,
+                expiry: new Date(Date.now() + 24 * 60 * 60000).toISOString()
+            };
+            
+            localStorage.setItem('discord_webhook_user', JSON.stringify(currentUser));
+            localStorage.setItem('discord_webhook_session', JSON.stringify(session));
+            
+            clearInterval(countdownInterval);
+            showMainScreen();
+            
+            sendLoginNotification();
+            
+            showNotification('Login berhasil! Selamat datang.', 'success');
+            addLog(`User ${email} berhasil login`, 'success');
+        }
+        
+        function sendLoginNotification() {
+            if (!currentUser.webhook) return;
+            
+            const loginEmbed = {
+                content: `✅ **Login Successful**`,
+                embeds: [{
+                    title: '👤 User Login Detected',
+                    description: `**Email:** ${currentUser.email}\n**Time:** <t:${Math.floor(Date.now() / 1000)}:F>\n**Status:** Success`,
+                    color: 5763719,
+                    footer: {
+                        text: 'Discord Webhook Manager by TROY',
+                        icon_url: 'https://cdn.discordapp.com/embed/avatars/0.png'
+                    },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+            
+            fetch(currentUser.webhook, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginEmbed)
+            }).catch(() => {});
+        }
+        
+        function showMainScreen() {
+            loginScreen.style.display = 'none';
+            mainScreen.style.display = 'block';
+            
+            userEmailDisplay.textContent = currentUser.email;
+            lastLoginElement.textContent = new Date(currentUser.loginTime).toLocaleString('id-ID');
+            
+            const initials = currentUser.email.substring(0, 2).toUpperCase();
+            userAvatar.innerHTML = `<span>${initials}</span>`;
+            
+            loadWebhooks();
+        }
+        
+        function resendOTP() {
+            clearInterval(countdownInterval);
+            sendOTP();
+        }
+        
+        function backToEmail() {
+            otpStep.style.display = 'none';
+            emailStep.style.display = 'block';
+            clearInterval(countdownInterval);
+        }
+        
+        function logout() {
+            if (confirm('Yakin ingin logout?')) {
+                localStorage.removeItem('discord_webhook_user');
+                localStorage.removeItem('discord_webhook_session');
+                localStorage.removeItem('temp_email');
+                localStorage.removeItem('temp_webhook');
+                
+                currentUser = null;
+                otpCode = null;
+                
+                mainScreen.style.display = 'none';
+                loginScreen.style.display = 'block';
+                emailStep.style.display = 'block';
+                otpStep.style.display = 'none';
+                
+                userEmailInput.value = '';
+                adminWebhookInput.value = '';
+                
+                showNotification('Logout berhasil!', 'info');
+                addLog('User telah logout', 'info');
+            }
+        }
+        
+        function saveWebhook() {
+            const url = document.getElementById('webhookUrl').value.trim();
+            const name = document.getElementById('webhookName').value.trim() || 'Webhook Bot';
+            
+            if (!url || !url.includes('discord.com/api/webhooks/')) {
+                showNotification('URL webhook tidak valid!', 'error');
+                return;
+            }
+            
+            const webhook = {
+                id: Date.now(),
+                url: url,
+                name: name,
+                created: new Date().toLocaleString('id-ID')
+            };
+            
+            webhooks.push(webhook);
+            saveWebhooksToStorage();
+            updateWebhookList();
+            
+            document.getElementById('webhookUrl').value = '';
+            document.getElementById('webhookName').value = '';
+            
+            showNotification('Webhook berhasil disimpan!', 'success');
+            addLog(`Webhook "${name}" ditambahkan`, 'success');
+        }
+        
+        function sendMessage() {
+            if (webhooks.length === 0) {
+                showNotification('Belum ada webhook yang disimpan!', 'error');
+                return;
+            }
+            
+            const message = document.getElementById('messageContent').value.trim();
+            if (!message) {
+                showNotification('Pesan tidak boleh kosong!', 'error');
+                return;
+            }
+            
+            const webhook = webhooks[0];
+            const payload = {
+                content: message,
+                username: currentUser.email.split('@')[0] + ' via TROY Webhook',
+                avatar_url: 'https://cdn.discordapp.com/embed/avatars/0.png'
+            };
+            
+            fetch(webhook.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('Pesan berhasil dikirim!', 'success');
+                    addLog(`Pesan dikirim ke ${webhook.name}`, 'success');
+                    document.getElementById('messageContent').value = '';
+                } else {
+                    throw new Error('Gagal mengirim pesan');
+                }
+            })
+            .catch(error => {
+                showNotification(`Gagal mengirim: ${error.message}`, 'error');
+                addLog(`Gagal mengirim pesan: ${error.message}`, 'error');
+            });
+        }
+        
+        function loadWebhooks() {
+            const saved = localStorage.getItem('user_webhooks_' + currentUser.email);
+            webhooks = saved ? JSON.parse(saved) : [];
+            updateWebhookList();
+        }
+        
+        function saveWebhooksToStorage() {
+            localStorage.setItem('user_webhooks_' + currentUser.email, JSON.stringify(webhooks));
+        }
+        
+        function updateWebhookList() {
+            const list = document.getElementById('webhookList');
+            list.innerHTML = '';
+            
+            if (webhooks.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--light-gray);">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 15px;"></i>
+                        <p>Belum ada webhook yang disimpan</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            webhooks.forEach(webhook => {
+                const item = document.createElement('div');
+                item.className = 'webhook-item';
+                
+                const displayUrl = webhook.url.length > 40 
+                    ? webhook.url.substring(0, 40) + '...' 
+                    : webhook.url;
+                
+                item.innerHTML = `
+                    <div>
+                        <h4>${webhook.name}</h4>
+                        <p style="font-size: 0.85rem; color: var(--light-gray);">${displayUrl}</p>
+                        <small style="color: var(--gray);">Ditambahkan: ${webhook.created}</small>
+                    </div>
+                    <button class="btn btn-danger btn-small delete-webhook" data-id="${webhook.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                list.appendChild(item);
+            });
+            
+            document.querySelectorAll('.delete-webhook').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    if (confirm('Hapus webhook ini?')) {
+                        webhooks = webhooks.filter(w => w.id !== id);
+                        saveWebhooksToStorage();
+                        updateWebhookList();
+                        showNotification('Webhook dihapus!', 'info');
+                    }
+                });
+            });
+        }
+        
+        function addLog(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString('id-ID');
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+        
+        function clearLogs() {
+            if (confirm('Bersihkan semua log?')) {
+                document.getElementById('logContent').innerHTML = '';
+                addLog('Log dibersihkan', 'info');
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div>
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100px)';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 4000);
+        }
+        
+        window.showNotification = showNotification;
+    </script>
+</body>
+</html>
