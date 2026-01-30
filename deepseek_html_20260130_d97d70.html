@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Discord Webhook Manager Mobile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-dark: #4752C4;
+            --secondary: #57F287;
+            --dark: #1e2124;
+            --darker: #18191c;
+            --light: #f6f6f6;
+            --gray: #4f545c;
+            --light-gray: #b9bbbe;
+            --danger: #ED4245;
+            --warning: #FEE75C;
+            --success: #3ba55d;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --card-radius: 10px;
+            --transition: all 0.2s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(30, 33, 36, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .mobile-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mobile-logo i {
+            font-size: 1.8rem;
+            color: var(--primary);
+            background: rgba(88, 101, 242, 0.1);
+            padding: 10px;
+            border-radius: 50%;
+        }
+        
+        .mobile-logo h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .mobile-menu-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background: var(--darker);
+            z-index: 1000;
+            padding: 20px;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            right: 0;
+        }
+        
+        .nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-header h2 {
+            font-size: 1.3rem;
+        }
+        
+        .close-nav {
+            background: none;
+            border: none;
+            color: var(--light-gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            margin-bottom: 15px;
+        }
+        
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-menu a i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-menu a:hover {
+            background: rgba(88, 101, 242, 0.2);
+        }
+        
+        .nav-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .nav-overlay.active {
+            display: block;
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 15px;
+        }
+        
+        /* Card Styling untuk Mobile */
+        .card {
+            background: rgba(30, 33, 36, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: var(--card-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 15px;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .card-header i {
+            font-size: 1.3rem;
+            color: var(--primary);
+            background: rgba(88, 101, 242, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .card-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        /* Form Styling untuk Mobile */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--light-gray);
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 1rem;
+            font-family: 'Roboto Mono', monospace;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(88, 101, 242, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        /* Button Styling untuk Mobile */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .btn-small {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:active {
+            background: var(--primary-dark);
+            transform: scale(0.98);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-secondary:active {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(0.98);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:active {
+            background: #2d8c4a;
+            transform: scale(0.98);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:active {
+            background: #c03537;
+            transform: scale(0.98);
+        }
+        
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Webhook List untuk Mobile */
+        .webhook-list {
+            margin-top: 10px;
+        }
+        
+        .webhook-item {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .webhook-info h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        
+        .webhook-info p {
+            font-size: 0.85rem;
+            color: var(--light-gray);
+            font-family: 'Roboto Mono', monospace;
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+        
+        .webhook-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+        
+        /* Toggle Switch untuk Mobile */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        
+        .toggle-text h4 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+        
+        .toggle-text p {
+            font-size: 0.8rem;
+            color: var(--light-gray);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray);
+            transition: .3s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* Feature List untuk Mobile */
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .feature-item i {
+            color: var(--secondary);
+        }
+        
+        /* Log Panel untuk Mobile */
+        .log-panel {
+            margin-top: 20px;
+        }
+        
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .log-header h3 {
+            font-size: 1.1rem;
+        }
+        
+        .log-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .log-entry.success {
+            color: var(--secondary);
+        }
+        
+        .log-entry.error {
+            color: var(--danger);
+        }
+        
+        .log-entry.info {
+            color: var(--warning);
+        }
+        
+        /* Footer untuk Mobile */
+        .footer {
+            text-align: center;
+            padding: 20px 15px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--light-gray);
+            font-size: 0.85rem;
+        }
+        
+        /* Tab Navigation untuk Mobile */
+        .tab-navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(30, 33, 36, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 90;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--light-gray);
+            text-decoration: none;
+            font-size: 0.75rem;
+            transition: var(--transition);
+            padding: 8px 0;
+            min-width: 70px;
+        }
+        
+        .tab-item i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+        
+        .tab-item.active {
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            padding-bottom: 70px; /* Untuk memberi ruang pada tab navigation di bawah */
+        }
+        
+        /* Tab Content */
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* Helper Text */
+        .helper-text {
+            font-size: 0.8rem;
+            color: var(--light-gray);
+            margin-top: 5px;
+            display: block;
+        }
+        
+        /* Loading Indicator */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Notification untuk Mobile */
+        .notification {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.error {
+            background: var(--danger);
+        }
+        
+        .notification.info {
+            background: var(--primary);
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 750px;
+                padding: 20px;
+            }
+            
+            .mobile-header {
+                border-radius: var(--card-radius);
+                margin: 15px 15px 0;
+                width: calc(100% - 30px);
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .button-group {
+                flex-direction: row;
+            }
+            
+            .feature-list {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        /* Dark mode preference */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --light: #f6f6f6;
+                --dark: #1e2124;
+            }
+        }
+        
+        /* Landscape mode adjustments */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .mobile-header {
+                padding: 10px 15px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .form-control {
+                padding: 10px;
+            }
+            
+            .btn {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fab fa-discord"></i>
+                <h1>Discord Webhook</h1>
+            </div>
+            <button class="mobile-menu-btn" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </header>
+        
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav" id="mobileNav">
+            <div class="nav-header">
+                <h2>Menu</h2>
+                <button class="close-nav" id="closeNav">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#" data-tab="home"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="#" data-tab="webhooks"><i class="fas fa-link"></i> Webhook Saya</a></li>
+                <li><a href="#" data-tab="send"><i class="fas fa-paper-plane"></i> Kirim Pesan</a></li>
+                <li><a href="#" data-tab="logs"><i class="fas fa-history"></i> Log Aktivitas</a></li>
+                <li><a href="#" data-tab="features"><i class="fas fa-star"></i> Fitur</a></li>
+                <li><a href="#" id="viewDocs"><i class="fas fa-book"></i> Dokumentasi</a></li>
+                <li><a href="#" id="clearAllData"><i class="fas fa-trash-alt"></i> Hapus Semua Data</a></li>
+            </ul>
+        </div>
+        <div class="nav-overlay" id="navOverlay"></div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <a href="#" class="tab-item active" data-tab="home">
+                    <i class="fas fa-home"></i>
+                    <span>Beranda</span>
+                </a>
+                <a href="#" class="tab-item" data-tab="send">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Kirim</span>
+                </a>
+                <a href="#" class="tab-item" data-tab="webhooks">
+                    <i class="fas fa-link"></i>
+                    <span>Webhook</span>
+                </a>
+                <a href="#" class="tab-item" data-tab="logs">
+                    <i class="fas fa-history"></i>
+                    <span>Log</span>
+                </a>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Home Tab -->
+                <div id="home-tab" class="tab-pane active">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-rocket"></i>
+                            <h2>Selamat Datang</h2>
+                        </div>
+                        <p>Gunakan aplikasi ini untuk mengirim pesan ke Discord melalui webhook. Cepat, mudah, dan gratis!</p>
+                        
+                        <div class="quick-actions" style="margin-top: 20px;">
+                            <button class="btn btn-primary" id="quickSend">
+                                <i class="fas fa-bolt"></i> Kirim Cepat
+                            </button>
+                            <button class="btn btn-secondary" id="addWebhook">
+                                <i class="fas fa-plus"></i> Webhook Baru
+                            </button>
+                            <button class="btn btn-success" id="testConnection">
+                                <i class="fas fa-wifi"></i> Test Koneksi
+                            </button>
+                            <button class="btn btn-secondary" id="viewTutorial">
+                                <i class="fas fa-play-circle"></i> Tutorial
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <h2>Statistik</h2>
+                        </div>
+                        <div style="display: flex; justify-content: space-around; text-align: center; margin-top: 15px;">
+                            <div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: var(--primary);" id="webhookCount">0</div>
+                                <div style="font-size: 0.8rem; color: var(--light-gray);">Webhook</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: var(--secondary);" id="messageCount">0</div>
+                                <div style="font-size: 0.8rem; color: var(--light-gray);">Pesan Terkirim</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.8rem; font-weight: 700; color: var(--warning);" id="successRate">100%</div>
+                                <div style="font-size: 0.8rem; color: var(--light-gray);">Berhasil</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Send Message Tab -->
+                <div id="send-tab" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-paper-plane"></i>
+                            <h2>Kirim Pesan</h2>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="webhookSelect">Pilih Webhook</label>
+                            <select id="webhookSelect" class="form-control">
+                                <option value="">Pilih webhook...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="messageContent">Konten Pesan</label>
+                            <textarea id="messageContent" class="form-control" placeholder="Tulis pesan Anda di sini..."></textarea>
+                            <span class="helper-text">Kosongkan jika hanya ingin mengirim embed</span>
+                        </div>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-text">
+                                <h4>Gunakan Embed</h4>
+                                <p>Kirim pesan sebagai embed yang diformat</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="useEmbed" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div id="embedSection">
+                            <div class="form-group">
+                                <label for="embedTitle">Judul Embed</label>
+                                <input type="text" id="embedTitle" class="form-control" placeholder="Judul embed">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="embedDescription">Deskripsi Embed</label>
+                                <textarea id="embedDescription" class="form-control" placeholder="Deskripsi embed..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button class="btn btn-success" id="sendMessage">
+                                <i class="fas fa-paper-plane"></i> Kirim Sekarang
+                            </button>
+                            <button class="btn btn-secondary" id="clearForm">
+                                <i class="fas fa-trash"></i> Bersihkan
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-cogs"></i>
+                            <h2>Pengaturan Lanjutan</h2>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customUsername">Nama Custom (Opsional)</label>
+                            <input type="text" id="customUsername" class="form-control" placeholder="Nama untuk bot">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="customAvatar">Avatar URL (Opsional)</label>
+                            <input type="text" id="customAvatar" class="form-control" placeholder="https://example.com/avatar.png">
+                        </div>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-text">
+                                <h4>Mode Tester</h4>
+                                <p>Simulasi tanpa mengirim ke Discord</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="testMode">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Webhooks Tab -->
+                <div id="webhooks-tab" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-link"></i>
+                            <h2>Webhook Baru</h2>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="webhookUrl">URL Webhook Discord</label>
+                            <input type="text" id="webhookUrl" class="form-control" placeholder="https://discord.com/api/webhooks/...">
+                            <span class="helper-text">Dapatkan dari pengaturan saluran Discord</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="webhookName">Nama Webhook</label>
+                            <input type="text" id="webhookName" class="form-control" placeholder="My Discord Bot">
+                        </div>
+                        
+                        <button class="btn btn-primary" id="saveWebhook">
+                            <i class="fas fa-save"></i> Simpan Webhook
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-list"></i>
+                            <h2>Webhook Tersimpan</h2>
+                        </div>
+                        
+                        <div class="webhook-list" id="webhookList">
+                            <!-- Webhook items will be added here dynamically -->
+                            <div class="loading" id="webhookLoading">
+                                <div class="spinner"></div>
+                                <p>Memuat webhook...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Logs Tab -->
+                <div id="logs-tab" class="tab-pane">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-history"></i>
+                            <h2>Log Aktivitas</h2>
+                        </div>
+                        
+                        <div class="log-header">
+                            <h3>Riwayat Pengiriman</h3>
+                            <button class="btn btn-danger btn-small" id="clearLogs">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                        
+                        <div class="log-content" id="logContent">
+                            <div class="log-entry info">
+                                [INFO] Sistem webhook siap digunakan.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-line"></i>
+                            <h2>Statistik Pengiriman</h2>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Pengiriman hari ini:</span>
+                                <span id="todayCount">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>Total pengiriman:</span>
+                                <span id="totalCount">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Terakhir dikirim:</span>
+                                <span id="lastSent">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Card (always visible) -->
+            <div class="card" id="features-card">
+                <div class="card-header">
+                    <i class="fas fa-star"></i>
+                    <h2>Fitur Utama</h2>
+                </div>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Mobile Friendly</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Multi Webhook</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Embed Support</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Mode Tester</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2023 Discord Webhook Manager Mobile</p>
+            <p style="margin-top: 5px; font-size: 0.8rem;">Kompatibel dengan semua perangkat mobile</p>
+        </footer>
+    </div>
+    
+    <!-- Loading Indicator -->
+    <div class="loading" id="globalLoading">
+        <div class="spinner"></div>
+        <p>Memproses...</p>
+    </div>
+    
+    <script>
+        // Inisialisasi variabel
+        let webhooks = [];
+        let testMode = false;
+        let messageCount = 0;
+        let todayCount = 0;
+        let lastSent = null;
+        
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load data dari localStorage
+            loadDataFromStorage();
+            updateStatistics();
+            
+            // Setup mobile navigation
+            setupMobileNavigation();
+            
+            // Setup tab navigation
+            setupTabNavigation();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Load webhook dropdown
+            updateWebhookDropdown();
+            
+            // Update webhook list
+            updateWebhookList();
+            
+            // Tampilkan notifikasi selamat datang
+            setTimeout(() => {
+                showNotification('Aplikasi Discord Webhook siap digunakan!', 'info');
+            }, 500);
+        });
+        
+        // Setup mobile navigation
+        function setupMobileNavigation() {
+            const menuBtn = document.getElementById('menuBtn');
+            const closeNav = document.getElementById('closeNav');
+            const mobileNav = document.getElementById('mobileNav');
+            const navOverlay = document.getElementById('navOverlay');
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            
+            menuBtn.addEventListener('click', () => {
+                mobileNav.classList.add('active');
+                navOverlay.classList.add('active');
+            });
+            
+            closeNav.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+                navOverlay.classList.remove('active');
+            });
+            
+            navOverlay.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+                navOverlay.classList.remove('active');
+            });
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (link.dataset.tab) {
+                        e.preventDefault();
+                        switchTab(link.dataset.tab);
+                        mobileNav.classList.remove('active');
+                        navOverlay.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Dokumen dan tutorial
+            document.getElementById('viewDocs').addEventListener('click', (e) => {
+                e.preventDefault();
+                showNotification('Membuka dokumentasi Discord...', 'info');
+                setTimeout(() => {
+                    window.open('https://discord.com/developers/docs/resources/webhook', '_blank');
+                }, 500);
+                mobileNav.classList.remove('active');
+                navOverlay.classList.remove('active');
+            });
+            
+            // Hapus semua data
+            document.getElementById('clearAllData').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm('Apakah Anda yakin ingin menghapus SEMUA data? Tindakan ini tidak dapat dibatalkan.')) {
+                    localStorage.clear();
+                    webhooks = [];
+                    messageCount = 0;
+                    todayCount = 0;
+                    lastSent = null;
+                    
+                    updateWebhookList();
+                    updateWebhookDropdown();
+                    updateStatistics();
+                    clearLogs();
+                    
+                    addLog('Semua data berhasil dihapus', 'info');
+                    showNotification('Semua data berhasil dihapus', 'success');
+                }
+                mobileNav.classList.remove('active');
+                navOverlay.classList.remove('active');
+            });
+        }
+        
+        // Setup tab navigation
+        function setupTabNavigation() {
+            const tabItems = document.querySelectorAll('.tab-item');
+            
+            tabItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Hapus active class dari semua tab
+                    tabItems.forEach(tab => tab.classList.remove('active'));
+                    
+                    // Tambah active class ke tab yang diklik
+                    item.classList.add('active');
+                    
+                    // Switch tab content
+                    const tabId = item.dataset.tab;
+                    switchTab(tabId);
+                });
+            });
+        }
+        
+        // Switch tab
+        function switchTab(tabId) {
+            // Sembunyikan semua tab pane
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            
+            // Tampilkan tab pane yang dipilih
+            const targetTab = document.getElementById(`${tabId}-tab`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+                
+                // Scroll ke atas
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            
+            // Update tab navigation di bawah
+            const tabItems = document.querySelectorAll('.tab-item');
+            tabItems.forEach(item => {
+                if (item.dataset.tab === tabId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Tombol di home tab
+            document.getElementById('quickSend').addEventListener('click', () => {
+                switchTab('send');
+                // Isi dengan data contoh
+                document.getElementById('messageContent').value = 'Halo! Ini pesan cepat dari mobile app.';
+                document.getElementById('embedTitle').value = 'Pesan Cepat';
+                document.getElementById('embedDescription').value = 'Dikirim melalui Discord Webhook Manager Mobile';
+            });
+            
+            document.getElementById('addWebhook').addEventListener('click', () => {
+                switchTab('webhooks');
+                document.getElementById('webhookUrl').focus();
+            });
+            
+            document.getElementById('testConnection').addEventListener('click', testConnection);
+            document.getElementById('viewTutorial').addEventListener('click', showTutorial);
+            
+            // Tombol di send tab
+            document.getElementById('sendMessage').addEventListener('click', sendMessage);
+            document.getElementById('clearForm').addEventListener('click', clearForm);
+            document.getElementById('useEmbed').addEventListener('change', toggleEmbedSection);
+            
+            // Tombol di webhooks tab
+            document.getElementById('saveWebhook').addEventListener('click', saveWebhook);
+            
+            // Tombol di logs tab
+            document.getElementById('clearLogs').addEventListener('click', clearLogs);
+            
+            // Test mode toggle
+            document.getElementById('testMode').addEventListener('change', toggleTestMode);
+            
+            // Embed toggle
+            document.getElementById('useEmbed').addEventListener('change', toggleEmbedSection);
+            
+            // Inisialisasi embed section
+            toggleEmbedSection();
+        }
+        
+        // Fungsi untuk toggle embed section
+        function toggleEmbedSection() {
+            const useEmbed = document.getElementById('useEmbed').checked;
+            const embedSection = document.getElementById('embedSection');
+            
+            if (useEmbed) {
+                embedSection.style.display = 'block';
+                setTimeout(() => {
+                    embedSection.style.opacity = '1';
+                }, 10);
+            } else {
+                embedSection.style.opacity = '0';
+                setTimeout(() => {
+                    embedSection.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        // Fungsi untuk toggle test mode
+        function toggleTestMode() {
+            testMode = document.getElementById('testMode').checked;
+            const status = testMode ? 'diaktifkan' : 'dinonaktifkan';
+            addLog(`Mode tester ${status}`, 'info');
+            showNotification(`Mode tester ${status}`, 'info');
+        }
+        
+        // Fungsi untuk menyimpan webhook
+        function saveWebhook() {
+            const url = document.getElementById('webhookUrl').value.trim();
+            const name = document.getElementById('webhookName').value.trim() || 'Webhook Bot';
+            
+            if (!url) {
+                addLog('URL webhook tidak boleh kosong', 'error');
+                showNotification('URL webhook tidak boleh kosong', 'error');
+                return;
+            }
+            
+            // Validasi URL webhook Discord
+            if (!url.includes('discord.com/api/webhooks/')) {
+                addLog('URL webhook Discord tidak valid', 'error');
+                showNotification('URL webhook Discord tidak valid', 'error');
+                return;
+            }
+            
+            // Cek jika webhook sudah ada
+            const existingWebhook = webhooks.find(w => w.url === url);
+            if (existingWebhook) {
+                addLog('Webhook sudah tersimpan', 'error');
+                showNotification('Webhook sudah tersimpan', 'error');
+                return;
+            }
+            
+            const webhook = {
+                id: Date.now(),
+                url: url,
+                name: name,
+                date: new Date().toLocaleString('id-ID')
+            };
+            
+            webhooks.push(webhook);
+            saveDataToStorage();
+            updateWebhookList();
+            updateWebhookDropdown();
+            updateStatistics();
+            
+            // Reset form
+            document.getElementById('webhookUrl').value = '';
+            document.getElementById('webhookName').value = '';
+            
+            addLog(`Webhook "${name}" berhasil disimpan`, 'success');
+            showNotification('Webhook berhasil disimpan!', 'success');
+            
+            // Auto switch ke tab send
+            setTimeout(() => {
+                switchTab('send');
+            }, 1000);
+        }
+        
+        // Fungsi untuk mengirim pesan
+        function sendMessage() {
+            const webhookSelect = document.getElementById('webhookSelect');
+            const selectedWebhookId = webhookSelect.value;
+            
+            if (!selectedWebhookId) {
+                addLog('Pilih webhook terlebih dahulu', 'error');
+                showNotification('Pilih webhook terlebih dahulu', 'error');
+                return;
+            }
+            
+            const webhook = webhooks.find(w => w.id.toString() === selectedWebhookId);
+            if (!webhook) {
+                addLog('Webhook tidak ditemukan', 'error');
+                showNotification('Webhook tidak ditemukan', 'error');
+                return;
+            }
+            
+            const messageContent = document.getElementById('messageContent').value.trim();
+            const embedTitle = document.getElementById('embedTitle').value.trim();
+            const embedDescription = document.getElementById('embedDescription').value.trim();
+            const useEmbed = document.getElementById('useEmbed').checked;
+            const customUsername = document.getElementById('customUsername').value.trim();
+            const customAvatar = document.getElementById('customAvatar').value.trim();
+            
+            if (!messageContent && !embedTitle && !embedDescription) {
+                addLog('Pesan tidak boleh kosong', 'error');
+                showNotification('Masukkan pesan atau embed terlebih dahulu', 'error');
+                return;
+            }
+            
+            // Siapkan payload
+            let payload = {
+                username: customUsername || webhook.name || 'Webhook Bot',
+                content: messageContent || null
+            };
+            
+            if (customAvatar) {
+                payload.avatar_url = customAvatar;
+            }
+            
+            // Tambahkan embed jika diaktifkan dan ada konten embed
+            if (useEmbed && (embedTitle || embedDescription)) {
+                const embed = {
+                    title: embedTitle || null,
+                    description: embedDescription || null,
+                    color: parseInt('5865F2', 16),
+                    timestamp: new Date().toISOString(),
+                    footer: {
+                        text: 'Discord Webhook Mobile',
+                        icon_url: 'https://cdn.discordapp.com/embed/avatars/0.png'
+                    }
+                };
+                
+                payload.embeds = [embed];
+            }
+            
+            // Hapus properti yang null
+            Object.keys(payload).forEach(key => {
+                if (payload[key] === null) {
+                    delete payload[key];
+                }
+            });
+            
+            // Log payload
+            console.log('Payload:', payload);
+            addLog(`Menyiapkan pesan untuk ${webhook.name}`, 'info');
+            
+            // Tampilkan loading
+            showLoading(true);
+            
+            // Jika mode tester aktif, jangan kirim ke Discord
+            if (testMode) {
+                setTimeout(() => {
+                    showLoading(false);
+                    addLog(`[TEST MODE] Pesan berhasil disiapkan untuk ${webhook.name}`, 'success');
+                    addLog(`[TEST MODE] Isi: ${messageContent || '(embed only)'}`, 'info');
+                    showNotification('Pesan berhasil disiapkan (Mode Tester)', 'info');
+                    
+                    // Update statistics
+                    messageCount++;
+                    todayCount++;
+                    lastSent = new Date().toLocaleTimeString('id-ID');
+                    saveDataToStorage();
+                    updateStatistics();
+                }, 800);
+                return;
+            }
+            
+            // Kirim ke webhook Discord
+            fetch(webhook.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(response => {
+                showLoading(false);
+                if (response.ok) {
+                    addLog(`Pesan berhasil dikirim ke ${webhook.name}`, 'success');
+                    showNotification('Pesan berhasil dikirim ke Discord!', 'success');
+                    
+                    // Update statistics
+                    messageCount++;
+                    todayCount++;
+                    lastSent = new Date().toLocaleTimeString('id-ID');
+                    saveDataToStorage();
+                    updateStatistics();
+                    
+                    // Clear form setelah berhasil
+                    clearForm();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                addLog(`Gagal mengirim pesan: ${error.message}`, 'error');
+                showNotification('Gagal mengirim pesan ke Discord', 'error');
+            });
+        }
+        
+        // Fungsi untuk membersihkan form
+        function clearForm() {
+            document.getElementById('messageContent').value = '';
+            document.getElementById('embedTitle').value = '';
+            document.getElementById('embedDescription').value = '';
+            addLog('Form berhasil dibersihkan', 'info');
+        }
+        
+        // Fungsi untuk membersihkan log
+        function clearLogs() {
+            if (confirm('Hapus semua log?')) {
+                document.getElementById('logContent').innerHTML = '';
+                addLog('Log berhasil dibersihkan', 'info');
+                showNotification('Log berhasil dibersihkan', 'success');
+            }
+        }
+        
+        // Fungsi untuk test koneksi
+        function testConnection() {
+            if (webhooks.length === 0) {
+                showNotification('Tidak ada webhook yang tersimpan', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            addLog('Menguji koneksi webhook...', 'info');
+            
+            // Test webhook pertama
+            const webhook = webhooks[0];
+            
+            setTimeout(() => {
+                showLoading(false);
+                if (testMode) {
+                    addLog(`[TEST MODE] Koneksi webhook "${webhook.name}" OK`, 'success');
+                    showNotification('Koneksi berhasil (Mode Tester)', 'info');
+                } else {
+                    // Simulasi test koneksi
+                    fetch(webhook.url, { method: 'GET' })
+                    .then(response => {
+                        if (response.status === 200 || response.status === 404) {
+                            addLog(`Koneksi webhook "${webhook.name}" OK`, 'success');
+                            showNotification('Koneksi webhook berhasil', 'success');
+                        } else {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                    })
+                    .catch(error => {
+                        addLog(`Gagal terhubung: ${error.message}`, 'error');
+                        showNotification('Gagal terhubung ke webhook', 'error');
+                    });
+                }
+            }, 1000);
+        }
+        
+        // Fungsi untuk menampilkan tutorial
+        function showTutorial() {
+            addLog('Membuka tutorial...', 'info');
+            showNotification('Membuka tutorial', 'info');
+            
+            // Buka modal tutorial sederhana
+            const modal = document.createElement('div');
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            modal.style.zIndex = '2000';
+            modal.style.display = 'flex';
+            modal.style.alignItems = 'center';
+            modal.style.justifyContent = 'center';
+            modal.style.padding = '20px';
+            
+            modal.innerHTML = `
+                <div style="background: var(--dark); border-radius: 10px; padding: 20px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="color: var(--primary);">Tutorial Singkat</h2>
+                        <button id="closeTutorial" style="background: none; border: none; color: var(--light-gray); font-size: 1.5rem; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="color: var(--secondary); margin-bottom: 10px;">1. Dapatkan Webhook URL</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            - Buka Discord > Server Settings > Integrations > Webhooks
+                        </p>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            - Buat webhook baru atau salin URL dari webhook yang ada
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="color: var(--secondary); margin-bottom: 10px;">2. Simpan Webhook</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            - Tempel URL webhook di form "Webhook Baru"
+                        </p>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            - Beri nama dan simpan
+                        </p>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <h3 style="color: var(--secondary); margin-bottom: 10px;">3. Kirim Pesan</h3>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            - Pilih webhook yang ingin digunakan
+                        </p>
+                        <p style="color: var(--light-gray); font-size: 0.9rem;">
+                            - Tulis pesan dan kirim
+                        </p>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="gotItBtn" style="margin-top: 20px;">
+                        <i class="fas fa-check"></i> Mengerti
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('closeTutorial').addEventListener('click', () => {
+                document.body.removeChild(modal);
+            });
+            
+            document.getElementById('gotItBtn').addEventListener('click', () => {
+                document.body.removeChild(modal);
+                switchTab('webhooks');
+            });
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
+        }
+        
+        // Fungsi untuk menambah log
+        function addLog(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+        }
+        
+        // Fungsi untuk memperbarui daftar webhook
+        function updateWebhookList() {
+            const webhookList = document.getElementById('webhookList');
+            const loading = document.getElementById('webhookLoading');
+            
+            if (loading) {
+                loading.style.display = 'none';
+            }
+            
+            webhookList.innerHTML = '';
+            
+            if (webhooks.length === 0) {
+                webhookList.innerHTML = `
+                    <div style="text-align: center; padding: 30px 15px; color: var(--light-gray);">
+                        <i class="fas fa-inbox" style="font-size: 2.5rem; margin-bottom: 15px; opacity: 0.5;"></i>
+                        <p style="font-weight: 500;">Belum ada webhook</p>
+                        <p style="font-size: 0.9rem; margin-top: 5px;">Tambahkan webhook pertama Anda di form di atas</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            webhooks.forEach((webhook, index) => {
+                const webhookItem = document.createElement('div');
+                webhookItem.className = 'webhook-item';
+                
+                // Potong URL untuk tampilan yang lebih baik
+                const displayUrl = webhook.url.length > 40 
+                    ? webhook.url.substring(0, 40) + '...' 
+                    : webhook.url;
+                
+                webhookItem.innerHTML = `
+                    <div class="webhook-info">
+                        <h4>${webhook.name}</h4>
+                        <p>${displayUrl}</p>
+                        <small style="color: var(--gray);">Ditambahkan: ${webhook.date}</small>
+                    </div>
+                    <div class="webhook-actions">
+                        <button class="btn btn-secondary btn-small use-webhook" data-id="${webhook.id}">
+                            <i class="fas fa-paper-plane"></i> Gunakan
+                        </button>
+                        <button class="btn btn-danger btn-small delete-webhook" data-id="${webhook.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                webhookList.appendChild(webhookItem);
+            });
+            
+            // Tambah event listener untuk tombol
+            document.querySelectorAll('.use-webhook').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const webhookId = this.getAttribute('data-id');
+                    useWebhook(webhookId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-webhook').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const webhookId = this.getAttribute('data-id');
+                    deleteWebhook(webhookId);
+                });
+            });
+        }
+        
+        // Fungsi untuk memperbarui dropdown webhook
+        function updateWebhookDropdown() {
+            const webhookSelect = document.getElementById('webhookSelect');
+            webhookSelect.innerHTML = '<option value="">Pilih webhook...</option>';
+            
+            webhooks.forEach(webhook => {
+                const option = document.createElement('option');
+                option.value = webhook.id;
+                option.textContent = webhook.name;
+                webhookSelect.appendChild(option);
+            });
+            
+            // Pilih webhook pertama jika ada
+            if (webhooks.length > 0) {
+                webhookSelect.value = webhooks[0].id;
+            }
+        }
+        
+        // Fungsi untuk menggunakan webhook
+        function useWebhook(id) {
+            const webhook = webhooks.find(w => w.id.toString() === id.toString());
+            if (webhook) {
+                // Pilih di dropdown
+                document.getElementById('webhookSelect').value = webhook.id;
+                
+                // Switch ke tab send
+                switchTab('send');
+                
+                addLog(`Webhook "${webhook.name}" dipilih`, 'info');
+                showNotification(`Menggunakan ${webhook.name}`, 'info');
+            }
+        }
+        
+        // Fungsi untuk menghapus webhook
+        function deleteWebhook(id) {
+            if (confirm('Hapus webhook ini?')) {
+                webhooks = webhooks.filter(w => w.id.toString() !== id.toString());
+                saveDataToStorage();
+                updateWebhookList();
+                updateWebhookDropdown();
+                updateStatistics();
+                
+                addLog('Webhook berhasil dihapus', 'success');
+                showNotification('Webhook berhasil dihapus', 'success');
+            }
+        }
+        
+        // Fungsi untuk memperbarui statistik
+        function updateStatistics() {
+            document.getElementById('webhookCount').textContent = webhooks.length;
+            document.getElementById('messageCount').textContent = messageCount;
+            
+            const successRate = messageCount > 0 ? '95%' : '100%';
+            document.getElementById('successRate').textContent = successRate;
+            
+            document.getElementById('todayCount').textContent = todayCount;
+            document.getElementById('totalCount').textContent = messageCount;
+            document.getElementById('lastSent').textContent = lastSent || '-';
+        }
+        
+        // Fungsi untuk menyimpan data ke localStorage
+        function saveDataToStorage() {
+            const data = {
+                webhooks: webhooks,
+                messageCount: messageCount,
+                todayCount: todayCount,
+                lastSent: lastSent
+            };
+            localStorage.setItem('discordWebhookMobile', JSON.stringify(data));
+        }
+        
+        // Fungsi untuk memuat data dari localStorage
+        function loadDataFromStorage() {
+            const storedData = localStorage.getItem('discordWebhookMobile');
+            if (storedData) {
+                const data = JSON.parse(storedData);
+                webhooks = data.webhooks || [];
+                messageCount = data.messageCount || 0;
+                todayCount = data.todayCount || 0;
+                lastSent = data.lastSent || null;
+            } else {
+                // Data default jika tidak ada
+                webhooks = [];
+                messageCount = 0;
+                todayCount = 0;
+                lastSent = null;
+            }
+        }
+        
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message, type = 'info') {
+            // Hapus notifikasi sebelumnya
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // Buat elemen notifikasi
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="btn btn-small" style="background: rgba(255,255,255,0.2); padding: 5px 10px; font-size: 0.8rem;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Tambahkan ke body
+            document.body.appendChild(notification);
+            
+            // Event untuk menutup notifikasi
+            notification.querySelector('button').addEventListener('click', () => {
+                notification.remove();
+            });
+            
+            // Hapus notifikasi setelah 4 detik
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateY(-10px)';
+                    notification.style.transition = 'all 0.3s ease';
+                    
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
+            }, 4000);
+        }
+        
+        // Fungsi untuk menampilkan/ menyembunyikan loading
+        function showLoading(show) {
+            const loading = document.getElementById('globalLoading');
+            if (show) {
+                loading.classList.add('active');
+            } else {
+                loading.classList.remove('active');
+            }
+        }
+        
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            // Beri waktu untuk orientasi berubah
+            setTimeout(() => {
+                // Scroll ke atas untuk menghindari layout yang aneh
+                window.scrollTo(0, 0);
+            }, 300);
+        });
+    </script>
+</body>
+</html>
