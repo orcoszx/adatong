@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Discord Webhook Manager | Spam & Auto Post</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Copyright Watermark -->
+    <div class="copyright-watermark">DISCORD WEBHOOK MANAGER © TROY 2026</div>
+    <div class="troy-signature">Created by TROY 2026</div>
+    
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="logo">
+                <i class="fab fa-discord"></i>
+                <h1>Discord Webhook</h1>
+                <p>Login dengan OTP via Discord | by TROY</p>
+            </div>
+            
+            <!-- Email Step -->
+            <div id="emailStep">
+                <div class="form-group">
+                    <label for="userEmail">
+                        <i class="fas fa-envelope"></i> Email Anda
+                    </label>
+                    <input type="email" id="userEmail" class="form-control" 
+                           placeholder="nama@email.com" autocomplete="email">
+                    <span class="helper-text">OTP akan dikirim ke Discord</span>
+                </div>
+                
+                <button class="btn btn-primary" id="sendOTP">
+                    <i class="fas fa-paper-plane"></i> Kirim OTP
+                </button>
+            </div>
+            
+            <!-- OTP Step -->
+            <div id="otpStep" style="display: none;">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-shield-alt"></i> Masukkan Kode OTP
+                    </label>
+                    <p style="color: var(--light-gray); margin-bottom: 15px; font-size: 0.9rem;">
+                        Kode OTP telah dikirim ke Discord. Silakan cek channel Discord Anda.
+                    </p>
+                </div>
+                
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4" inputmode="numeric">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5" inputmode="numeric">
+                </div>
+                
+                <div class="form-group" style="text-align: center;">
+                    <p id="timer" style="color: var(--warning); margin: 15px 0; font-size: 0.9rem;">
+                        OTP berlaku: <span id="countdown">300</span> detik
+                    </p>
+                </div>
+                
+                <button class="btn btn-success" id="verifyOTP">
+                    <i class="fas fa-check"></i> Verifikasi OTP
+                </button>
+                
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-secondary" id="resendOTP" style="flex: 1;">
+                        <i class="fas fa-redo"></i> Ulangi
+                    </button>
+                    <button class="btn btn-danger" id="backToEmail" style="flex: 1;">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading" id="loginLoading">
+                <div class="spinner"></div>
+                <p>Memproses...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Screen -->
+    <div class="main-screen" id="mainScreen">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <h3 id="userEmailDisplay">Email User</h3>
+                    <p><i class="fas fa-circle" style="color: var(--secondary); font-size: 0.6rem;"></i> Online | by TROY</p>
+                </div>
+            </div>
+            <button class="btn btn-danger btn-small" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+            <a href="#" class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="webhooks">
+                <i class="fas fa-link"></i>
+                <span>Webhook</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="send">
+                <i class="fas fa-paper-plane"></i>
+                <span>Kirim</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="spam">
+                <i class="fas fa-bullhorn"></i>
+                <span>Spam</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="history">
+                <i class="fas fa-history"></i>
+                <span>Riwayat</span>
+            </a>
+        </div>
+        
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-pane active">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <h2>Dashboard</h2>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <p>Selamat datang di Discord Webhook Manager</p>
+                        <p style="color: var(--light-gray); font-size: 0.9rem; margin-top: 10px;">
+                            Versi 3.0 dengan fitur Spam & Auto Post
+                        </p>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="btn btn-primary" id="quickSend">
+                            <i class="fas fa-bolt"></i> Kirim Cepat
+                        </button>
+                        <button class="btn btn-secondary" id="addWebhookBtn">
+                            <i class="fas fa-plus"></i> Webhook Baru
+                        </button>
+                        <button class="btn btn-success" id="testConnection">
+                            <i class="fas fa-wifi"></i> Test
+                        </button>
+                        <button class="btn btn-secondary" id="gotoSpam">
+                            <i class="fas fa-bullhorn"></i> Spam Tool
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h2>Statistik Penggunaan</h2>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; text-align: center;">
+                        <div>
+                            <div style="font-size: 1.8rem; font-weight: bold; color: var(--primary);" id="webhookCount">0</div>
+                            <div style="font-size: 0.8rem; color: var(--light-gray);">Webhook</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.8rem; font-weight: bold; color: var(--secondary);" id="messageCount">0</div>
+                            <div style="font-size: 0.8rem; color: var(--light-gray);">Pesan Terkirim</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.8rem; font-weight: bold; color: var(--warning);" id="spamCount">0</div>
+                            <div style="font-size: 0.8rem; color: var(--light-gray);">Spam Session</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Webhooks Tab -->
+            <div id="webhooks-tab" class="tab-pane">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-plus-circle"></i>
+                        <h2>Webhook Baru</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="webhookUrl">
+                            <i class="fas fa-link"></i> URL Webhook Discord
+                        </label>
+                        <input type="text" id="webhookUrl" class="form-control" 
+                               placeholder="https://discord.com/api/webhooks/...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="webhookName">
+                            <i class="fas fa-tag"></i> Nama Webhook
+                        </label>
+                        <input type="text" id="webhookName" class="form-control" 
+                               placeholder="My Discord Bot">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="botName">
+                            <i class="fas fa-robot"></i> Nama Bot (Opsional)
+                        </label>
+                        <input type="text" id="botName" class="form-control" 
+                               placeholder="Kosongkan untuk pakai default">
+                        <span class="helper-text">Nama bot terpisah dari webhook</span>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="saveWebhook">
+                        <i class="fas fa-save"></i> Simpan Webhook
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-list"></i>
+                        <h2>Webhook Tersimpan</h2>
+                    </div>
+                    
+                    <div class="webhook-list" id="webhookList">
+                        <!-- Webhook items will be added here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Send Tab -->
+            <div id="send-tab" class="tab-pane">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-paper-plane"></i>
+                        <h2>Kirim Pesan Tunggal</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="messageWebhook">Pilih Webhook</label>
+                        <select id="messageWebhook" class="form-control">
+                            <option value="">Pilih webhook...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="messageContent">
+                            <i class="fas fa-comment-alt"></i> Konten Pesan
+                        </label>
+                        <textarea id="messageContent" class="form-control" 
+                                  placeholder="Tulis pesan Anda di sini..." rows="5"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customUsername">
+                            <i class="fas fa-user-edit"></i> Nama Bot (Opsional)
+                        </label>
+                        <input type="text" id="customUsername" class="form-control" 
+                               placeholder="Kosongkan untuk pakai default">
+                    </div>
+                    
+                    <div class="button-group" style="display: flex; gap: 10px;">
+                        <button class="btn btn-success" id="sendMessage" style="flex: 2;">
+                            <i class="fas fa-paper-plane"></i> Kirim Sekarang
+                        </button>
+                        <button class="btn btn-secondary" id="clearMessage" style="flex: 1;">
+                            <i class="fas fa-trash"></i> Bersihkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Spam Tab -->
+            <div id="spam-tab" class="tab-pane">
+                <!-- Webhook Selection for Spam -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-check-double"></i>
+                        <h2>Pilih Webhook untuk Spam</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="selection-controls" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button class="btn btn-secondary btn-small" id="selectAllSpam">
+                                <i class="fas fa-check-square"></i> Pilih Semua
+                            </button>
+                            <button class="btn btn-secondary btn-small" id="deselectAllSpam">
+                                <i class="fas fa-square"></i> Batalkan Semua
+                            </button>
+                        </div>
+                        
+                        <div class="spam-webhook-list" id="spamWebhookList" style="max-height: 200px; overflow-y: auto;">
+                            <!-- Webhook checklist akan dimuat di sini -->
+                        </div>
+                        
+                        <div style="margin-top: 15px; text-align: center;">
+                            <p id="selectedCount" style="color: var(--light-gray);">
+                                <i class="fas fa-link"></i> Terpilih: <span id="selectedWebhooksCount">0</span> webhook
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Message Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-comment-alt"></i>
+                        <h2>Konfigurasi Pesan</h2>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="spamMessage">
+                            <i class="fas fa-pen"></i> Pesan untuk Spam
+                        </label>
+                        <textarea id="spamMessage" class="form-control" 
+                                  placeholder="Pesan yang akan dikirim ke semua webhook..." 
+                                  rows="4"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="spamBotName">
+                            <i class="fas fa-robot"></i> Nama Bot (Opsional)
+                        </label>
+                        <input type="text" id="spamBotName" class="form-control" 
+                               placeholder="Kosongkan untuk pakai default masing-masing webhook">
+                        <span class="helper-text">Jika kosong, akan pakai nama bot dari masing-masing webhook</span>
+                    </div>
+                </div>
+                
+                <!-- Delay Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-clock"></i>
+                        <h2>Pengaturan Delay</h2>
+                    </div>
+                    
+                    <!-- Delay Type Selection -->
+                    <div class="delay-type-selector">
+                        <div class="delay-option">
+                            <input type="radio" id="delayFixed" name="delayType" value="fixed" checked>
+                            <label for="delayFixed">
+                                <i class="fas fa-stopwatch"></i>
+                                <span>Fixed Delay</span>
+                                <small>Delay tetap antara pengiriman</small>
+                            </label>
+                        </div>
+                        
+                        <div class="delay-option">
+                            <input type="radio" id="delayRandom" name="delayType" value="random">
+                            <label for="delayRandom">
+                                <i class="fas fa-random"></i>
+                                <span>Random Delay</span>
+                                <small>Delay acak dalam range tertentu</small>
+                            </label>
+                        </div>
+                        
+                        <div class="delay-option">
+                            <input type="radio" id="delayIncremental" name="delayType" value="incremental">
+                            <label for="delayIncremental">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Incremental Delay</span>
+                                <small>Delay bertambah setiap pengiriman</small>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Fixed Delay Settings -->
+                    <div class="delay-settings" id="fixedDelaySettings">
+                        <div class="form-group">
+                            <label for="fixedDelayValue">
+                                <i class="fas fa-hourglass-half"></i> Delay (milidetik)
+                            </label>
+                            <div class="range-container">
+                                <input type="range" id="fixedDelayValue" min="200" max="10000" value="1000" step="100">
+                                <div class="range-value">
+                                    <span id="fixedDelayDisplay">1000</span> ms
+                                </div>
+                            </div>
+                            <div class="range-labels">
+                                <span>Cepat (200ms)</span>
+                                <span>Normal (1000ms)</span>
+                                <span>Lambat (10000ms)</span>
+                            </div>
+                            <small class="warning" id="rateLimitWarning" style="color: var(--warning); display: none;">
+                                ⚠️ Delay di bawah 500ms mungkin kena rate limit
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Random Delay Settings -->
+                    <div class="delay-settings" id="randomDelaySettings" style="display: none;">
+                        <div class="form-group">
+                            <label for="randomDelayMin">
+                                <i class="fas fa-arrow-down"></i> Minimum Delay
+                            </label>
+                            <input type="number" id="randomDelayMin" class="form-control" value="500" min="200" max="5000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="randomDelayMax">
+                                <i class="fas fa-arrow-up"></i> Maximum Delay
+                            </label>
+                            <input type="number" id="randomDelayMax" class="form-control" value="3000" min="500" max="10000">
+                        </div>
+                        
+                        <div class="preview">
+                            <p>Delay akan acak antara <span id="randomRangePreview">500-3000</span> ms</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Incremental Delay Settings -->
+                    <div class="delay-settings" id="incrementalDelaySettings" style="display: none;">
+                        <div class="form-group">
+                            <label for="incrementalStart">
+                                <i class="fas fa-play"></i> Delay Awal
+                            </label>
+                            <input type="number" id="incrementalStart" class="form-control" value="500" min="200" max="5000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="incrementalStep">
+                                <i class="fas fa-plus"></i> Kenaikan per Kirim
+                            </label>
+                            <input type="number" id="incrementalStep" class="form-control" value="100" min="0" max="1000">
+                        </div>
+                        
+                        <div class="preview">
+                            <p>Delay akan bertambah <span id="stepPreview">100</span> ms setiap pengiriman</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Delay Preview -->
+                    <div class="delay-preview">
+                        <h4><i class="fas fa-eye"></i> Preview Timeline:</h4>
+                        <div class="timeline-preview" id="timelinePreview">
+                            <!-- Timeline akan digambar di sini -->
+                        </div>
+                        <div class="preview-stats">
+                            <p><i class="fas fa-calculator"></i> Estimasi:</p>
+                            <ul>
+                                <li>Total webhook: <span id="previewTotal">0</span></li>
+                                <li>Rata-rata delay: <span id="previewAvgDelay">0</span> ms</li>
+                                <li>Total waktu: <span id="previewTotalTime">0</span> detik</li>
+                                <li>Request/detik: <span id="previewRPS">0</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Spam Controls -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-play-circle"></i>
+                        <h2>Kontrol Spam</h2>
+                    </div>
+                    
+                    <div class="spam-controls">
+                        <!-- Progress Bar -->
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="spamProgressFill"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span id="spamProgressText">0% (0/0)</span>
+                                <span id="spamTimeRemaining">Estimasi: 0s</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Control Buttons -->
+                        <div class="control-buttons">
+                            <button class="btn btn-success btn-lg" id="startSpam">
+                                <i class="fas fa-play"></i> Mulai Spam
+                            </button>
+                            <button class="btn btn-warning btn-lg" id="pauseSpam" disabled>
+                                <i class="fas fa-pause"></i> Jeda
+                            </button>
+                            <button class="btn btn-danger btn-lg" id="stopSpam" disabled>
+                                <i class="fas fa-stop"></i> Berhenti
+                            </button>
+                        </div>
+                        
+                        <!-- Live Stats -->
+                        <div class="live-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                                <span>Berhasil:</span>
+                                <strong id="statsSuccess">0</strong>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-times-circle" style="color: var(--danger);"></i>
+                                <span>Gagal:</span>
+                                <strong id="statsFailed">0</strong>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-clock" style="color: var(--warning);"></i>
+                                <span>Delay:</span>
+                                <strong id="statsCurrentDelay">0</strong> ms
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Tab -->
+            <div id="history-tab" class="tab-pane">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i>
+                        <h2>Riwayat Aktivitas</h2>
+                    </div>
+                    
+                    <div class="log-header">
+                        <h3>Log Pengiriman & Spam</h3>
+                        <button class="btn btn-danger btn-small" id="clearLogs">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="log-content" id="logContent">
+                        <div class="log-entry info">
+                            [SISTEM] Silakan login untuk mulai menggunakan
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie"></i>
+                        <h2>Statistik</h2>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Pengiriman hari ini:</span>
+                            <span id="todayCount">0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Total pengiriman:</span>
+                            <span id="totalCount">0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span>Spam session:</span>
+                            <span id="spamSessionCount">0</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Terakhir login:</span>
+                            <span id="lastLogin">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading" id="globalLoading">
+        <div class="spinner"></div>
+        <p>Memproses...</p>
+    </div>
+    
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <!-- JavaScript Files -->
+    <script src="script.js"></script>
+    <script src="spam-manager.js"></script>
+</body>
+</html>
